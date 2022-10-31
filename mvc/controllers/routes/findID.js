@@ -1,5 +1,8 @@
 const express = require('express')
 const router = express.Router();
+const mysql = require('mysql');
+const conn = require("../../../key-db/db")
+const db = mysql.createConnection(conn)
 
 const findPW = () => {
 return `<!DOCTYPE html>
@@ -145,6 +148,22 @@ return `<!DOCTYPE html>
 
 router.get('/', (req, res) => {
     res.send(findPW())
+})
+
+router.post('/', (req, res) => {
+    const sql = "select * from user"
+    let body = req.body
+    db.query(sql, body, (err, row) => {
+        res.setHeader("Content-Type", "text/html; charset=utf-8")
+        if(err) throw err;
+        let info = row.map((element) => {
+            if(body.name === element.name && body.email === element.email){
+                res.write(`<script>alert("유저님의 ID는 ${element.id} 입니다"); window.location="/signin"</script>`)
+            } else {
+                res.write(`<script>alert("입력 정보가 틀리셨거나 가입되어 있지 않은 정보입니다 다시 한번 확인하여 주시기 바랍니다.");window.location="/idFind"</script>`)
+            }
+        })
+    })
 })
 
 module.exports = router;

@@ -1,5 +1,9 @@
 const express = require('express')
 const router = express.Router();
+const mysql = require("mysql")
+const conn = require("../../../key-db/db")
+const db = mysql.createConnection(conn)
+const mailer = require("nodemailer")
 
 const findPW = () => {
 return `<!DOCTYPE html>
@@ -161,7 +165,41 @@ return `<!DOCTYPE html>
 }
 
 router.get('/', (req, res) => {
-  res.send(findPW())
+    res.send(findPW())
+})
+
+const mail = mailer.createTransport({
+    service : "Gmail",
+    auth : {
+        user : "je970311@gmail.com",
+        pass : "",
+    },
+})
+
+router.post('/', (req, res) => {
+    const sql = "select * from user"
+    const body = req.body
+    db.query(sql, body, (err, row) => {
+        res.setHeader("Content-Type", "text/html; charset=utf-8")
+        if(err) throw err;
+        let info = row.map((element) => {
+            if(body.name === element.name && body.id === element.id && body.email === element.email){
+                const message = {
+                    from: `${element.name}`,
+                    to : `${element.email}`,
+                    subject : "고객님이 잃어버리신 비밀번호 입니다",
+                    text : `고객님이 잃어버린 비밀번호는 다음과 같습니다 : ${element.password}`
+                }
+                mail.sendMail(message, (err, row) => {
+                    if(err) throw err;
+                    console.log(row, "완료")
+                })
+                res.write(`<script>alert("유저님의 pw를 등록된 이메일을 통해 발송하였습니다."); window.location="/signin"</script>`)
+            } else {
+                res.write(`<script>alert("입력 정보가 틀리셨거나 가입되어 있지 않은 정보입니다 다시 한번 확인하여 주시기 바랍니다.");window.location="/pwFind"</script>`)
+            }
+        })
+    })
 })
 
 module.exports = router;
