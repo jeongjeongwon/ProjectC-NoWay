@@ -26,7 +26,7 @@ const pwfindPage = require("./controllers/routes/findPW")
 //const update2Page = require("./controllers/routes/update2")
 const signupPage = require("./controllers/routes/signupPage")
 const createboard = require("./controllers/routes/createboard")
-const search = require("./controllers/routes/missingboard")
+const search = require("./controllers/routes/search")
 
 app.use('/', mainPage)
 app.use('/missing', missingboard)
