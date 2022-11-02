@@ -85,8 +85,9 @@ router.post('/', upload.single("image"), (req, res) => {
   let result = [location, breed, gender, age, inNeutering, name, uniqueness, image]
   console.log(req.body)
   db.query(sql, result, (err, row) => {
+    res.setHeader("Content-Type", "text/html; charset=utf-8")
     if(err) throw err;
-    res.send("완료")
+    res.write(`<script>alert("글 작성이 완료 되었습니다"); window.location="/signin"</script>`)
   })
 })
 

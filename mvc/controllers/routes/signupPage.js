@@ -3,6 +3,7 @@ const mysql = require('mysql')
 const conn = require("../../../key-db/db")
 const db = mysql.createConnection(conn)
 const router = express.Router();
+const crypto = require("crypto");
 
 const signup = () => {
   return `<!DOCTYPE html>
@@ -29,7 +30,7 @@ const signup = () => {
           <img src="image/스핑크스.jpg" alt="" id="signupImg">
         </section>
         <!--? 정보 작성 공간 form태그로 input테그에서 작성된 정보를 전송 DB에 저장하는 역할을 진행한다 각 name은 DB에 저장된 데이터의 이름이고 placeholder을 통해 어떤 정보를 적고 어떤 데이터 안에 저장될지 알 수 있다.-->
-        <form action="/" method="post" id="signupTextSector">
+        <form action="/signup" method="post" id="signupTextSector">
           <div id="signupText">
             <input type="text" name="id" class="userInfo" placeholder="아이디">
             <input type="text" name="password" class="userInfo" placeholder="비밀번호">
@@ -50,19 +51,38 @@ router.get('/', (req, res) => {
   res.send(signup())
 })
 
-router.post('/signup', (req, res) => {
-  const sql = "insert into user values (?, ?, ?, ?, ?, ?)"
-  let id = req.body.id;
+//const createsalt = () =>{
+//  new Promise(resolve, reject);
+//  crypto.randomBytes(64, (err,buf) => {
+//    if(err) throw err;
+//    resolve(buf.toString("base64"))
+//  })
+//}
+//
+//const createPassword = (PW) => {
+//  new Promise(async (resolve, reject) => {
+//    const salt = await createsalt();
+//    crypto.pbkdf2(PW, salt, 9999, 64, 'sha512', (err, buf) => {
+//      if(err) throw err
+//      resolve({password : buf.toString("base64"), salt})
+//    })
+//  })
+//}
+
+router.post('/', (req, res) => {
+  const sql = "INSERT INTO user VALUES (?,?,?,?,?,?)"
+  let id = req.body.id
   let password = req.body.password
   let name = req.body.name
-  let address = req.body.address;
   let phone = req.body.phone
+  let adress = req.body.adress
   let email = req.body.email
-  let result = [id, password, name, address, phone, email]
+  let result = [id, password, name, phone, adress, email]
   db.query(sql, result, (err, row) => {
-    if(err) throw err;
+    res.setHeader("Content-Type", "text/html; charset=utf-8")
+    if(err) throw err
     console.log(row)
-    res.send("회원가입 완료")
+    res.write(`<script>alert("회원가입이 완료되었습니다"); window.location="/signin"</script>`)
   })
 })
 
